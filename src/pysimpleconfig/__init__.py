@@ -1,1 +1,1 @@
-from r4n.main import main
+from pysimpleconfig.main import *
