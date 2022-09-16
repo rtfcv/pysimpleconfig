@@ -139,11 +139,21 @@ class SimpleConfig:
         self.pid = str(psutil.Process().pid)
         self.lockfile = os.path.join(self.config_dir, 'pysimpleconfig.lock')
 
-    def __getitem__(self, path):
+    def __getitem__(self, path:Union[str,tuple]):
         self.pull()
         error = None
+
+        if type(path) is str:
+            pathList = path.split('.')
+        elif type(path) is tuple:
+            pathList = list(path)
+        else:
+            raise KeyError(f'Key {path} has invalid type: {type(path)}\n'
+                    + 'Key must be str or tuple.'
+        )
+
         try:
-            data = dumpRecursiveDict(self.config, path)
+            data = dumpRecursiveDict(self.config, pathList)
         except KeyError as e:
             data = e
             error = e
@@ -154,8 +164,17 @@ class SimpleConfig:
 
         return data
 
-    def __setitem__(self, path, value):
-        pathList = list(path)
+    def __setitem__(self, path:Union[str,tuple], value):
+
+        if type(path) is str:
+            pathList = path.split('.')
+        elif type(path) is tuple:
+            pathList = list(path)
+        else:
+            raise KeyError(f'Key {path} has invalid type: {type(path)}\n'
+                    + 'Key must be str or tuple.'
+        )
+
         key = pathList.pop(-1)
 
         self.pull()
